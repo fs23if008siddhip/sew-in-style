@@ -1,0 +1,86 @@
+
+.listproduct {
+  width: 100%;
+  margin: 20px auto;
+  font-family: "Inter", sans-serif;
+  color: #333;
+  padding: 10px 50px;
+ 
+}
+
+
+.listproduct-format-main {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 2fr 3fr 0.5fr;
+  gap: 15px;
+  padding: 12px 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #ddd;
+  background: #fafafa;
+}
+
+
+.listproduct-format {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 2fr 3fr 0.5fr; 
+  gap: 15px;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease;
+}
+
+.listproduct-format:hover {
+  background: #f9f9f9;
+}
+
+.listproduct-product-icon {
+  width: 70px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.listproduct-format span {
+  font-size: 14px;
+  color: #222;
+}
+
+
+.listproduct-format p {
+  margin: 0;
+  font-weight: 500;
+  color: #444;
+}
+
+
+.listproduct-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: #555;
+}
+
+.listproduct-sizes span {
+  background: #f1f1f1;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.listproduct-description {
+  font-size: 13px;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listproduct-remove-icon {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  
+}

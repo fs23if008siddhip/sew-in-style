@@ -68,7 +68,7 @@ const CartItems = () => {
                 </div>
                <button
   onClick={() => {
-    const token = localStorage.getItem('auth-token');
+    const token = localStorage.getItem('token');
     if (!token) {
       // user not logged in, redirect to login
       navigate('/login');

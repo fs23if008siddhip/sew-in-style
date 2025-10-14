@@ -27,7 +27,7 @@ export const LoginSignup = () => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-      localStorage.setItem("auth-token", data.token);
+      localStorage.setItem("token", data.token);
 
         window.location.replace("/");
       } else {
@@ -53,7 +53,7 @@ export const LoginSignup = () => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        localStorage.setItem('auth-token', data.token);   
+        localStorage.setItem("token", data.token);   
         window.location.replace("/");
       } else {
         alert(data.errors || data.message || "Signup failed");

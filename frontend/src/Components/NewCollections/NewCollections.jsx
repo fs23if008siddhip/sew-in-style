@@ -7,7 +7,7 @@ const NewCollections = () => {
 
   const [new_collections,setNew_Collections] = useState([]); 
   useEffect(()=>{
-  fetch('http://localhost:5000/newcollections')
+  fetch('https://sew-in-style-2.onrender.com/newcollections')
   .then((response)=>response.json())
   .then((data)=>setNew_Collections(data))
   },[])

@@ -34,16 +34,17 @@ const Proceed = () => {
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
 
+
     // Validate form
     if (!fullName || !address || !city || !zipCode || !phoneNumber || !paymentMethod) {
       alert("Please fill in all fields and choose payment method");
       return;
     }
 
-    const token = localStorage.getItem("auth-token");
+    const token = localStorage.getItem('token');
     if (!token) {
       alert("You must be logged in to place an order!");
-      navigate("/login");
+      // navigate("/login");
       return;
     }
 
@@ -54,7 +55,7 @@ const Proceed = () => {
         const product = products.find((p) => String(p.id) === String(itemId));
         if (product) {
           orderedItems.push({
-            productId: product.id,
+            productId: product._id,
             name: product.name,
             image: product.image,
             price: product.price,
@@ -91,11 +92,13 @@ const Proceed = () => {
     // If COD, place order directly
     if (paymentMethod === "cod") {
       try {
+       
+
         const response = await fetch("http://localhost:5000/api/orders", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token,
+            "auth-token": token
           },
           body: JSON.stringify(newOrder),
         });
@@ -150,7 +153,7 @@ const Proceed = () => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "auth-token": token,
+                "auth-token": token
               },
               body: JSON.stringify(newOrder),
             });

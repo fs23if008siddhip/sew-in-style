@@ -8,6 +8,8 @@ const auth = require('../middleware/auth');
 // @desc    Create a new order
 // @access  Private (User)
 router.post('/', auth, async (req, res) => {
+  console.log("BODY:", req.body);
+  console.log("USER:", req.user);
   try {
     const { items, shippingInfo, totalAmount, paymentMethod, placedAt, status } = req.body;
 
@@ -24,7 +26,7 @@ router.post('/', auth, async (req, res) => {
     }
 
     const order = await Order.create({
-      user: req.user.id,
+        user: req.user.id,
       shippingInfo,
       items,
       totalAmount,

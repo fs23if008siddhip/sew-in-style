@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./Orders.css";
 
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-  const token = localStorage.getItem("auth-token"); 
+  const token = localStorage.getItem("token"); 
   fetch("http://localhost:5000/api/orders/my", {
     method: "GET",
     headers: {
@@ -44,8 +45,6 @@ const Orders = () => {
             <div key={`${order._id}-${index}`} className="order-card-new">
               <div className="order-item-info">
         <img src={item.image} alt={item.name} className="order-product-img" />
-
-
                 <div className="order-details">
                   
                   <h3 className="product-name">{item.name}</h3>

@@ -1,8 +1,14 @@
-.Admin{
-    display:flex;
+.Admin {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
 }
-@media(max-width:800px){
-    .admin{
-        flex-direction: column;
-    }
+
+/* Responsive behavior */
+@media (max-width: 800px) {
+  .Admin{
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

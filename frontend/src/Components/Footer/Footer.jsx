@@ -23,15 +23,17 @@ const Footer = () => {
                 <img src={instagram_icon} alt="instgarm" />
                 </a>
             </div>
-             <a href='https://wa.me/9653388303' target='_blank' rel='noopener noreferrer'>
+             <a href='https://wa.me/9833202733' target='_blank' rel='noopener noreferrer'>
              <div className="footer-icon-container">
                 <img src={whatsapp_icon} alt="whatsapp" />
                
             </div>
              </a>
+             <a href="https://www.pinterest.com/sewstyle30"  target='_blank' rel='noopener noreferrer'>
              <div className="footer-icon-container">
                 <img src={pinterest_icon} alt="" />
-            </div>
+            </div> 
+            </a>
         </div>
         <div className="footer-copyright">
             <hr />

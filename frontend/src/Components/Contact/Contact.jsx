@@ -30,13 +30,17 @@ const ContactUs = () => {
           </div>
 
           <div className="detail-item">
+        <a href='tel:+919833202733'>
             <img src={phone_icon} alt="Phone" />
-            <span>+91 98765 43210</span>
+            <span>+91 9833202733</span>
+            </a>
           </div>
 
           <div className="detail-item">
+             <a href="mailto:sewstyle30@gamil.com">
             <img src={mail_icon} alt="Email" />
-            <span>support@yourbrand.com</span>
+            <span>mailto:sewstyle30@gmail.com</span>
+            </a>
           </div>
 
           <div className="detail-item">

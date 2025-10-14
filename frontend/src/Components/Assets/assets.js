@@ -107,7 +107,6 @@ import bin_icon from './bin_icon.png';
 import cart_icon from './cart_icon.png';
 import cross_icon from './cross_icon.png';
 import dropdown_icon from './dropdown_icon.png';
-import home_img from './home_img.png';
 import logo from './logo.png';
 import menu_icon from './menu_icon.png';
 import hand_icon from './hand-icon.png';
@@ -121,7 +120,6 @@ bin_icon,
 cart_icon,
 cross_icon,
 dropdown_icon,
-home_img,
 logo,
 menu_icon,
 hand_icon,

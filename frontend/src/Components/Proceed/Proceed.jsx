@@ -20,83 +20,165 @@ const Proceed = () => {
     setPaymentMethod(event.target.value);
   };
 
-const handlePlaceOrder = async (e) => {
-  e.preventDefault();
-
-  if (!fullName || !address || !city || !zipCode || !phoneNumber || !paymentMethod) {
-    alert("Please fill in all fields and choose payment method");
-    return;
-  }
-
-  const token = localStorage.getItem("auth-token");
-  if (!token) {
-    alert("You must be logged in to place an order!");
-    navigate("/login");
-    return;
-  }
-
-  const orderedItems = [];
-  for (const itemId in cartItems) {
-    if (cartItems[itemId] > 0) {
-      const product = products.find((p) => String(p.id) === String(itemId));
-      if (product) {
-        orderedItems.push({
-          productId: product.id,
-          name: product.name,
-          image: product.image,
-          price: product.price,
-          size: product.size || "M", // default size if missing
-          quantity: cartItems[itemId],
-        });
-      }
-    }
-  }
-
-  if (orderedItems.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-
-  const newOrder = {
-    items: orderedItems,
-    totalAmount: getTotalCartAmount(),
-    paymentMethod,
-    shippingInfo: {
-      name: fullName,
-      address,
-      city,
-      state: "Maharashtra",
-      country: "India",
-      pincode: zipCode,
-      phone: phoneNumber,
-    },
-    status: "Order Placed",
-    placedAt: new Date().toISOString(),
+  // Load Razorpay SDK
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
   };
 
-  try {
-    const response = await fetch("http://localhost:5000/api/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "auth-token": localStorage.getItem('auth-token')  ,
-      },
-      body: JSON.stringify(newOrder),
-    });
+  const handlePlaceOrder = async (e) => {
+    e.preventDefault();
 
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || "Failed to place order");
+    // Validate form
+    if (!fullName || !address || !city || !zipCode || !phoneNumber || !paymentMethod) {
+      alert("Please fill in all fields and choose payment method");
+      return;
     }
 
-    alert("Order placed successfully!");
-    navigate("/orders");
-  } catch (err) {
-    console.error("Order error:", err.message);
-    alert(`Order failed: ${err.message}`);
-  }
-};
+    const token = localStorage.getItem("auth-token");
+    if (!token) {
+      alert("You must be logged in to place an order!");
+      navigate("/login");
+      return;
+    }
+
+    // Prepare ordered items
+    const orderedItems = [];
+    for (const itemId in cartItems) {
+      if (cartItems[itemId] > 0) {
+        const product = products.find((p) => String(p.id) === String(itemId));
+        if (product) {
+          orderedItems.push({
+            productId: product.id,
+            name: product.name,
+            image: product.image,
+            price: product.price,
+            size: product.size || "M",
+            quantity: cartItems[itemId],
+          });
+        }
+      }
+    }
+
+    if (orderedItems.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+
+    // Prepare order object
+    const newOrder = {
+      items: orderedItems,
+      totalAmount: getTotalCartAmount(),
+      paymentMethod,
+      shippingInfo: {
+        name: fullName,
+        address,
+        city,
+        state: "Maharashtra",
+        country: "India",
+        pincode: zipCode,
+        phone: phoneNumber,
+      },
+      status: "Order Placed",
+      placedAt: new Date().toISOString(),
+    };
+
+    // If COD, place order directly
+    if (paymentMethod === "cod") {
+      try {
+        const response = await fetch("http://localhost:5000/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+          body: JSON.stringify(newOrder),
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Failed to place order");
+        }
+
+        alert("Order placed successfully!");
+        navigate("/orders");
+      } catch (err) {
+        console.error("Order error:", err.message);
+        alert(`Order failed: ${err.message}`);
+      }
+      return;
+    }
+
+    // If Razorpay, open payment popup
+    if (paymentMethod === "razorpay") {
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        alert("Razorpay SDK failed to load");
+        return;
+      }
+
+      try {
+        // Call backend to create Razorpay order
+        const res = await fetch("http://localhost:5000/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: getTotalCartAmount() * 100 }), // amount in paise
+        });
+
+        const order = await res.json();
+
+        // Razorpay options
+        const options = {
+          key: "rzp_live_RP3895kdKMM7SU", // replace with your test/live key
+          amount: order.amount,
+          currency: order.currency,
+          name: "Sew in Style",
+          description: "Purchase",
+          order_id: order.id,
+          handler: async function (response) {
+            // Add Razorpay payment ID to order
+            newOrder.paymentMethod = "razorpay";
+            newOrder.razorpayPaymentId = response.razorpay_payment_id;
+
+            // Place order in backend
+            const orderRes = await fetch("http://localhost:5000/api/orders", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+              },
+              body: JSON.stringify(newOrder),
+            });
+
+            const orderData = await orderRes.json();
+            if (!orderRes.ok || !orderData.success) {
+              throw new Error(orderData.message || "Failed to place order");
+            }
+
+            alert("Order placed successfully!");
+            navigate("/orders");
+          },
+          prefill: {
+            name: fullName,
+            email: "customer@example.com", 
+            contact: phoneNumber,
+          },
+          theme: { color: "#3399cc" },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        console.error(err);
+        alert("Payment failed. Please try again.");
+      }
+    }
+  };
 
   return (
     <div className="proceed-container">

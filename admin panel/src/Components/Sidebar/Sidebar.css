@@ -31,3 +31,22 @@
         margin:0px;
     }
 } 
+@media (max-width: 500px) {
+  .sidebar {
+    padding: 25px 10px;    /* Slightly reduce padding */
+    gap: 15px;             /* Slightly smaller gap */
+    flex-direction: row;   /* Keep horizontal */
+    width: 100%;
+    max-width: none;
+    height: auto;
+    justify-content: center;
+  }
+
+  .sidebar-item {
+    margin: 0 10px;        /* Slightly smaller horizontal margin */
+    padding: 5px 12px;     /* Keep padding close to original */
+    font-size: 14px;       /* Slightly smaller font */
+    border-radius: 6px;
+    min-width: 80px;       /* Keep items wide enough */
+  }
+}

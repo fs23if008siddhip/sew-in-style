@@ -6,8 +6,11 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const bcrypt = require("bcryptjs")
+const Razorpay = require("razorpay");
 const { log } = require("console");
 const Product = require('./models/products');
+
 const { type } = require("os");
 require("dotenv").config();
 console.log('JWT_SECRET:', process.env.JWT_SECRET);
@@ -15,9 +18,63 @@ console.log('JWT_SECRET:', process.env.JWT_SECRET);
 const orderRoutes = require("./routes/orders");
 const authRoutes = require("./routes/auth");
 const User =  require('./models/User')
+const razorpay = new Razorpay({
+  key_id: 'rzp_live_RP3895kdKMM7SU',
+  key_secret: 't5pvznyAyr1e6YST5qy8HR30'
+});
 
 app.use(express.json());
 app.use(cors());
+
+
+const ADMIN_USERS = [
+  { email: "patilsiddhi910@gmail.com", password: bcrypt.hashSync("siddhi@008", 10) },
+  { email: "Diksha@gmail.com", password: bcrypt.hashSync("Diksha123", 10) }
+];
+
+app.post("/admin/login", (req, res) => {
+  const { email, password } = req.body;
+  const user = ADMIN_USERS.find(u => u.email === email);
+  if (!user) return res.status(401).json({ message: "Not authorized" });
+
+  const valid = bcrypt.compareSync(password, user.password);
+  if (!valid) return res.status(401).json({ message: "Invalid password" });
+
+  const token = jwt.sign({ email }, "secretkey", { expiresIn: "1h" });
+  res.json({ token });
+});
+
+// middleware to protect admin routes
+function verifyAdmin(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.status(403).json({ message: "No token" });
+
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) return res.status(403).json({ message: "Token invalid" });
+    req.user = decoded;
+    next();
+  });
+}
+
+app.get("/admin/dashboard", verifyAdmin, (req, res) => {
+  res.json({ message: `Welcome Admin ${req.user.email}` });
+});
+
+
+app.post('/create-order', async (req, res) => {
+  const { amount, currency } = req.body; // amount in paise
+  try {
+    const order = await razorpay.orders.create({
+      amount: amount, 
+      currency: currency || "INR",
+      receipt: "receipt#1"
+    });
+    res.json(order);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 app.use("/api/orders", orderRoutes);
 //Database Connection with MongoDB
@@ -40,60 +97,6 @@ const storage = multer.diskStorage({
     }
 })
 
-// //Creating endpoint for registering the users
-// app.post('/signup',async(req,res)=>{
-
-//   let check = await Users.findOne({email:req.body.email});
-//   if(check){
-//     return res.status(400).json({success:false,errors:"existing user found with same email address"})
-//   }
-//   let cart = {};
-//   for (let i= 0; i < 300; i++) {
-//     cart[i]=0;
-//   }
-// const user = new Users({
-//   name:req.body.username,
-//   email:req.body.email,
-//   password:req.body.password,
-//   cartData:cart,
-
-  
-// })
-// await user.save();
-
-// const data = {
-//   user:{
-//     _id:user._id
-//   }
-// }
-
-// const token = jwt.sign(data,'secret_ecom');
-// res.json({success:true,token})
-
-// })
-
-// // creating endpoint for user  login
-// app.post('/login',async (req,res)=>{
-//    let user = await Users.findOne({email:req.body.email});
-//    if (user){
-//     const passCompare = req.body.password === user.password;
-//     if(passCompare) {
-//       const data = {
-//         user:{
-//           _id:user._id
-//         }
-//       }
-//       const token = jwt.sign(data,'secret_ecom');
-//       res.json({success:true,token});
-//     }
-//     else{
-//       res.json({success:false,errors:"Wrong Password"});
-//     }
-//    }
-//    else{
-//     res.json({success:false,errors:"Wrong Email Address"})
-//    }
-// })
 
 const upload = multer({storage:storage})
 
